@@ -98,7 +98,7 @@ class DatabaseSeeder extends Seeder
         'nip'        => '198801122015041001',
         'nama'       => 'Ahmad Fauzi, S.Pd.',
         'email'      => 'ahmad.fauzi@smpbudiutomo.sch.id',
-        'no_hp'      => '081255001101',
+        'no_hp'      => '6287865712625',
         'status'     => 'aktif',
       ],
       [
@@ -107,7 +107,7 @@ class DatabaseSeeder extends Seeder
         'nip'        => '199205182019032002',
         'nama'       => 'Siti Rahmawati, S.Si.',
         'email'      => 'siti.rahma@smpbudiutomo.sch.id',
-        'no_hp'      => '081255001102',
+        'no_hp'      => '6287865712625',
         'status'     => 'aktif',
       ],
       // Guru SMA (sekolah_id = 2)
@@ -117,7 +117,7 @@ class DatabaseSeeder extends Seeder
         'nip'        => '199008242018011003',
         'nama'       => 'Budi Santoso, M.Pd.',
         'email'      => 'budi.santoso@smabudiutomo.sch.id',
-        'no_hp'      => '081346002201',
+        'no_hp'      => '6287865712625',
         'status'     => 'aktif',
       ],
       [
@@ -126,7 +126,7 @@ class DatabaseSeeder extends Seeder
         'nip'        => '199511102022022004',
         'nama'       => 'Dewi Lestari, S.Kom.',
         'email'      => 'dewi.lestari@smabudiutomo.sch.id',
-        'no_hp'      => '081346002202',
+        'no_hp'      => '6287865712625',
         'status'     => 'aktif',
       ],
     ];
@@ -195,15 +195,15 @@ class DatabaseSeeder extends Seeder
     // ==========================================
     $siswaData = [
       // Siswa SMP (ID 1 - 4)
-      ['id' => 1, 'nama' => 'Rizky Pratama', 'no_hp' => '085211112201', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
-      ['id' => 2, 'nama' => 'Aisyah Putri', 'no_hp' => '085211112202', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
-      ['id' => 3, 'nama' => 'Dimas Anggara', 'no_hp' => '085211112203', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
-      ['id' => 4, 'nama' => 'Nabila Azzahra', 'no_hp' => '085211112204', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
+      ['id' => 1, 'nama' => 'Rizky Pratama', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
+      ['id' => 2, 'nama' => 'Aisyah Putri', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
+      ['id' => 3, 'nama' => 'Dimas Anggara', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
+      ['id' => 4, 'nama' => 'Nabila Azzahra', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
       // Siswa SMA (ID 5 - 8)
-      ['id' => 5, 'nama' => 'Fajar Ramadhan', 'no_hp' => '085322223301', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
-      ['id' => 6, 'nama' => 'Zahra Amalia', 'no_hp' => '085322223302', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
-      ['id' => 7, 'nama' => 'Bagas Saputra', 'no_hp' => '085322223303', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
-      ['id' => 8, 'nama' => 'Intan Permatasari', 'no_hp' => '085322223304', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
+      ['id' => 5, 'nama' => 'Fajar Ramadhan', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
+      ['id' => 6, 'nama' => 'Zahra Amalia', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
+      ['id' => 7, 'nama' => 'Bagas Saputra', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'L', 'status' => 'aktif'],
+      ['id' => 8, 'nama' => 'Intan Permatasari', 'no_hp' => '6287865712625', 'jenis_kelamin' => 'P', 'status' => 'aktif'],
     ];
     $this->db->table('siswa')->insertBatch($siswaData);
 

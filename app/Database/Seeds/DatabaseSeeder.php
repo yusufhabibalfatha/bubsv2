@@ -47,6 +47,40 @@ class DatabaseSeeder extends Seeder
     $latBudiUtomo    = 3.3016392;
     $longBudiUtomo   = 117.6232432;
 
+    $templateSmp = "*LAPORAN KEHADIRAN SMP*\n"
+                  . "*{nama_sekolah}*\n"
+                  . "----------------------------------------\n"
+                  . "Yth. Orang Tua/Wali dari *{nama_siswa}* ({kelas}),\n\n"
+                  . "Berikut laporan KBM putra/putri Anda:\n"
+                  . "• Tanggal: {tanggal}\n"
+                  . "• Mapel: {mapel} (Jam ke-{jam_ke})\n"
+                  . "• Guru: {guru}\n"
+                  . "• Materi: {materi}\n"
+                  . "• Status: *{status}*\n"
+                  . "• Nilai: {nilai}\n"
+                  . "• Keterangan: {keterangan}\n"
+                  . "• Catatan: {catatan}\n"
+                  . "----------------------------------------\n"
+                  . "_Pesan otomatis Sistem Presensi SMP._";
+
+    $templateSma = "*INFORMASI PRESENSI KBM SMA*\n"
+                  . "*{nama_sekolah}*\n"
+                  . "----------------------------------------\n"
+                  . "Yth. Bapak/Ibu Orang Tua/Wali Siswa,\n"
+                  . "• Nama: *{nama_siswa}*\n"
+                  . "• Kelas: {kelas}\n\n"
+                  . "Telah mengikuti pembelajaran pada:\n"
+                  . "• Tanggal: {tanggal}\n"
+                  . "• Mata Pelajaran: {mapel} (Jam ke-{jam_ke})\n"
+                  . "• Pengajar: {guru}\n"
+                  . "• Materi Pokok: {materi}\n"
+                  . "• Kehadiran: *{status}*\n"
+                  . "• Nilai Harian: {nilai}\n"
+                  . "• Keterangan: {keterangan}\n"
+                  . "• Catatan Guru: {catatan}\n"
+                  . "----------------------------------------\n"
+                  . "_Terima kasih atas perhatian dan kerja samanya._";
+
     $sekolahData = [
       [
         'id'         => 1,
@@ -58,6 +92,7 @@ class DatabaseSeeder extends Seeder
         'status'     => 'aktif',
         'fonnte_token' => 'ISI_TOKEN_FONNTE_SMP_DISINI',
         'is_wa_aktif'  => 1,
+        'template_wa'  => $templateSmp,
       ],
       [
         'id'         => 2,
@@ -69,6 +104,7 @@ class DatabaseSeeder extends Seeder
         'status'     => 'aktif',
         'fonnte_token' => 'ISI_TOKEN_FONNTE_SMA_DISINI',
         'is_wa_aktif'  => 1,
+        'template_wa'  => $templateSma,
       ],
     ];
     $this->db->table('sekolah')->insertBatch($sekolahData);

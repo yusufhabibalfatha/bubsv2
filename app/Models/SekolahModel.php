@@ -18,9 +18,10 @@ class SekolahModel extends Model
         'latitude',
         'longitude',
         'status',
-        'fonnte_token', // Tambahan baru
-        'is_wa_aktif',  // Tambahan baru
-        ];
+        'fonnte_token',
+        'is_wa_aktif',
+        'template_wa', 
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -45,6 +46,7 @@ class SekolahModel extends Model
         'status'     => 'permit_empty|in_list[aktif,nonaktif]',
         'fonnte_token' => 'permit_empty|max_length[100]',
         'is_wa_aktif'  => 'permit_empty|in_list[0,1]',
+        'template_wa'  => 'permit_empty|string',
     ];
 
     protected $validationMessages = [

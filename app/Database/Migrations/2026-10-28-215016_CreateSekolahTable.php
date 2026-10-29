@@ -52,6 +52,10 @@ class CreateSekolahTable extends Migration
           'constraint' => 1,
           'default'    => 1,
       ],
+      'template_wa' => [
+          'type' => 'TEXT',
+          'null' => true,
+      ],
       'created_at' => [
         'type'    => 'TIMESTAMP',
         'null'    => true,

@@ -35,8 +35,35 @@ class GuruModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'sekolah_id' => 'required|is_natural_no_zero|is_not_unique[sekolah.id]',
+        'nip'        => 'permit_empty|max_length[30]',
+        'nama'       => 'required|max_length[150]',
+        'email'      => 'permit_empty|valid_email|max_length[150]',
+        'no_hp'      => 'permit_empty|max_length[30]',
+        'status'     => 'permit_empty|in_list[aktif,nonaktif]',
+    ];
+
+    protected $validationMessages = [
+        'sekolah_id' => [
+            'required'      => 'Asal sekolah guru wajib dipilih.',
+            'is_not_unique' => 'Sekolah tidak ditemukan.',
+        ],
+        'nip' => [
+            'max_length' => 'NIP maksimal 30 karakter.',
+        ],
+        'nama' => [
+            'required'   => 'Nama guru wajib diisi.',
+            'max_length' => 'Nama guru maksimal 150 karakter.',
+        ],
+        'email' => [
+            'valid_email' => 'Format email tidak valid.',
+            'max_length'  => 'Email maksimal 150 karakter.',
+        ],
+        'status' => [
+            'in_list' => 'Status guru harus aktif atau nonaktif.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

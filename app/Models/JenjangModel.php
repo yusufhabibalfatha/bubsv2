@@ -30,8 +30,18 @@ class JenjangModel extends Model
   protected $deletedField  = 'deleted_at';
 
   // Validation
-  protected $validationRules      = [];
-  protected $validationMessages   = [];
+    protected $validationRules = [
+        'id'   => 'permit_empty|is_natural_no_zero',
+        'nama' => 'required|max_length[50]|is_unique[jenjang.nama,id,{id}]',
+    ];
+
+    protected $validationMessages = [
+        'nama' => [
+            'required'   => 'Nama jenjang wajib diisi.',
+            'max_length' => 'Nama jenjang maksimal 50 karakter.',
+            'is_unique'  => 'Nama jenjang sudah terdaftar.',
+        ],
+    ];
   protected $skipValidation       = false;
   protected $cleanValidationRules = true;
 

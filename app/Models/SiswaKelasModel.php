@@ -33,8 +33,27 @@ class SiswaKelasModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'siswa_id'        => 'required|is_natural_no_zero|is_not_unique[siswa.id]',
+        'kelas_id'        => 'required|is_natural_no_zero|is_not_unique[kelas.id]',
+        'tahun_ajaran_id' => 'required|is_natural_no_zero|is_not_unique[tahun_ajaran.id]',
+        'is_aktif'        => 'permit_empty|in_list[0,1]',
+    ];
+
+    protected $validationMessages = [
+        'siswa_id' => [
+            'required'      => 'Siswa wajib dipilih.',
+            'is_not_unique' => 'Data siswa tidak ditemukan.',
+        ],
+        'kelas_id' => [
+            'required'      => 'Kelas wajib dipilih.',
+            'is_not_unique' => 'Data kelas tidak ditemukan.',
+        ],
+        'tahun_ajaran_id' => [
+            'required'      => 'Tahun ajaran wajib dipilih.',
+            'is_not_unique' => 'Data tahun ajaran tidak ditemukan.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

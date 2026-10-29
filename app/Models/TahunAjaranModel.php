@@ -32,8 +32,25 @@ class TahunAjaranModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'nama_tahun' => 'required|max_length[20]',
+        'semester'   => 'required|in_list[Ganjil,Genap]',
+        'is_aktif'   => 'permit_empty|in_list[0,1]',
+    ];
+
+    protected $validationMessages = [
+        'nama_tahun' => [
+            'required'   => 'Nama tahun ajaran wajib diisi (contoh: 2026/2027).',
+            'max_length' => 'Nama tahun ajaran maksimal 20 karakter.',
+        ],
+        'semester' => [
+            'required' => 'Semester wajib dipilih.',
+            'in_list'  => 'Semester hanya boleh diisi Ganjil atau Genap.',
+        ],
+        'is_aktif' => [
+            'in_list' => 'Status aktif hanya boleh bernilai 0 atau 1.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

@@ -33,8 +33,38 @@ class SekolahModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'jenjang_id' => 'required|is_natural_no_zero|is_not_unique[jenjang.id]',
+        'nama'       => 'required|max_length[150]',
+        'alamat'     => 'permit_empty|string',
+        'latitude'   => 'permit_empty|decimal|greater_than_equal_to[-90]|less_than_equal_to[90]',
+        'longitude'  => 'permit_empty|decimal|greater_than_equal_to[-180]|less_than_equal_to[180]',
+        'status'     => 'permit_empty|in_list[aktif,nonaktif]',
+    ];
+
+    protected $validationMessages = [
+        'jenjang_id' => [
+            'required'      => 'Jenjang sekolah wajib dipilih.',
+            'is_not_unique' => 'Jenjang yang dipilih tidak ditemukan di database.',
+        ],
+        'nama' => [
+            'required'   => 'Nama sekolah wajib diisi.',
+            'max_length' => 'Nama sekolah maksimal 150 karakter.',
+        ],
+        'latitude' => [
+            'decimal'               => 'Latitude harus berupa angka desimal.',
+            'greater_than_equal_to' => 'Latitude minimal -90.',
+            'less_than_equal_to'    => 'Latitude maksimal 90.',
+        ],
+        'longitude' => [
+            'decimal'               => 'Longitude harus berupa angka desimal.',
+            'greater_than_equal_to' => 'Longitude minimal -180.',
+            'less_than_equal_to'    => 'Longitude maksimal 180.',
+        ],
+        'status' => [
+            'in_list' => 'Status sekolah harus bernilai aktif atau nonaktif.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

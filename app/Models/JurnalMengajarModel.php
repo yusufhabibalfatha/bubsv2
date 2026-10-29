@@ -39,8 +39,43 @@ class JurnalMengajarModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'kelas_id'          => 'required|is_natural_no_zero|is_not_unique[kelas.id]',
+        'tahun_ajaran_id'   => 'required|is_natural_no_zero|is_not_unique[tahun_ajaran.id]',
+        'guru_id'           => 'required|is_natural_no_zero|is_not_unique[guru.id]',
+        'mata_pelajaran_id' => 'permit_empty|is_natural_no_zero|is_not_unique[mata_pelajaran.id]',
+        'tanggal'           => 'required|valid_date[Y-m-d]',
+        'jam_ke'            => 'permit_empty|max_length[20]',
+        'jam_mulai'         => 'permit_empty',
+        'jam_selesai'       => 'permit_empty',
+        'materi'            => 'permit_empty|string',
+        'catatan'           => 'permit_empty|string',
+    ];
+
+    protected $validationMessages = [
+        'kelas_id' => [
+            'required'      => 'Kelas wajib dipilih.',
+            'is_not_unique' => 'Kelas tidak terdaftar.',
+        ],
+        'tahun_ajaran_id' => [
+            'required'      => 'Tahun ajaran wajib dipilih.',
+            'is_not_unique' => 'Tahun ajaran tidak terdaftar.',
+        ],
+        'guru_id' => [
+            'required'      => 'Guru pengajar wajib dipilih.',
+            'is_not_unique' => 'Data guru tidak ditemukan.',
+        ],
+        'mata_pelajaran_id' => [
+            'is_not_unique' => 'Mata pelajaran tidak ditemukan.',
+        ],
+        'tanggal' => [
+            'required'   => 'Tanggal mengajar wajib diisi.',
+            'valid_date' => 'Format tanggal harus YYYY-MM-DD.',
+        ],
+        'jam_ke' => [
+            'max_length' => 'Kolom jam ke maksimal 20 karakter.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

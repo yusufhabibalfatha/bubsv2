@@ -35,8 +35,35 @@ class KelasModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'sekolah_id'      => 'required|is_natural_no_zero|is_not_unique[sekolah.id]',
+        'tahun_ajaran_id' => 'required|is_natural_no_zero|is_not_unique[tahun_ajaran.id]',
+        'nama'            => 'required|max_length[50]',
+        'tingkat'         => 'permit_empty|max_length[30]',
+        'wali_guru_id'    => 'permit_empty|is_natural_no_zero|is_not_unique[guru.id]',
+        'is_aktif'        => 'permit_empty|in_list[0,1]',
+    ];
+
+    protected $validationMessages = [
+        'sekolah_id' => [
+            'required'      => 'Sekolah wajib dipilih.',
+            'is_not_unique' => 'Data sekolah tidak valid.',
+        ],
+        'tahun_ajaran_id' => [
+            'required'      => 'Tahun ajaran wajib dipilih.',
+            'is_not_unique' => 'Data tahun ajaran tidak valid.',
+        ],
+        'nama' => [
+            'required'   => 'Nama kelas wajib diisi (contoh: XI-1).',
+            'max_length' => 'Nama kelas maksimal 50 karakter.',
+        ],
+        'wali_guru_id' => [
+            'is_not_unique' => 'Guru wali kelas yang dipilih tidak ditemukan.',
+        ],
+        'is_aktif' => [
+            'in_list' => 'Status aktif kelas hanya boleh bernilai 0 atau 1.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

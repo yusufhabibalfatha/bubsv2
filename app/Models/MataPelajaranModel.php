@@ -30,8 +30,18 @@ class MataPelajaranModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = [];
-    protected $validationMessages   = [];
+    protected $validationRules = [
+        'id'   => 'permit_empty|is_natural_no_zero',
+        'nama' => 'required|max_length[100]|is_unique[mata_pelajaran.nama,id,{id}]',
+    ];
+
+    protected $validationMessages = [
+        'nama' => [
+            'required'   => 'Nama mata pelajaran wajib diisi.',
+            'max_length' => 'Nama mata pelajaran maksimal 100 karakter.',
+            'is_unique'  => 'Mata pelajaran ini sudah ada.',
+        ],
+    ];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 

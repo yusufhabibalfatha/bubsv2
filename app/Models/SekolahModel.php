@@ -6,13 +6,18 @@ use CodeIgniter\Model;
 
 class SekolahModel extends Model
 {
-    protected $table            = 'sekolahs';
+    protected $table            = 'sekolah';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = ['jenjang_id',
+        'nama',
+        'alamat',
+        'latitude',
+        'longitude',
+        'status',];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -21,7 +26,7 @@ class SekolahModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -43,4 +48,14 @@ class SekolahModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * Mengambil daftar sekolah beserta nama jenjangnya
+     */
+    public function getSekolahWithJenjang()
+    {
+        return $this->select('sekolah.*, jenjang.nama as nama_jenjang')
+                    ->join('jenjang', 'jenjang.id = sekolah.jenjang_id')
+                    ->findAll();
+    }
 }

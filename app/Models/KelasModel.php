@@ -12,7 +12,14 @@ class KelasModel extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = [];
+    protected $allowedFields    = [
+        'sekolah_id',
+        'tahun_ajaran_id',
+        'nama',
+        'tingkat',
+        'wali_guru_id',
+        'is_aktif',
+    ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -21,7 +28,7 @@ class KelasModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -43,4 +50,25 @@ class KelasModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+
+    /**
+     * Mengambil daftar kelas lengkap dengan info sekolah, tahun ajaran, dan wali kelas
+     */
+    public function getKelasLengkap($sekolahId = null, $tahunAjaranId = null)
+    {
+        $builder = $this->select('kelas.*, sekolah.nama as nama_sekolah, tahun_ajaran.nama_tahun, tahun_ajaran.semester, guru.nama as nama_wali_kelas')
+                        ->join('sekolah', 'sekolah.id = kelas.sekolah_id')
+                        ->join('tahun_ajaran', 'tahun_ajaran.id = kelas.tahun_ajaran_id')
+                        ->join('guru', 'guru.id = kelas.wali_guru_id', 'left');
+
+        if ($sekolahId !== null) {
+            $builder->where('kelas.sekolah_id', $sekolahId);
+        }
+
+        if ($tahunAjaranId !== null) {
+            $builder->where('kelas.tahun_ajaran_id', $tahunAjaranId);
+        }
+
+        return $builder->findAll();
+    }
 }

@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     $this->db->disableForeignKeyChecks();
 
     $tables = [
+      'notifikasi_wa',
       'absensi_mapel_siswa',
       'jurnal_mengajar',
       'siswa_kelas',
@@ -55,6 +56,8 @@ class DatabaseSeeder extends Seeder
         'latitude'   => $latBudiUtomo,
         'longitude'  => $longBudiUtomo,
         'status'     => 'aktif',
+        'fonnte_token' => 'ISI_TOKEN_FONNTE_SMP_DISINI',
+        'is_wa_aktif'  => 1,
       ],
       [
         'id'         => 2,
@@ -64,6 +67,8 @@ class DatabaseSeeder extends Seeder
         'latitude'   => $latBudiUtomo,
         'longitude'  => $longBudiUtomo,
         'status'     => 'aktif',
+        'fonnte_token' => 'ISI_TOKEN_FONNTE_SMA_DISINI',
+        'is_wa_aktif'  => 1,
       ],
     ];
     $this->db->table('sekolah')->insertBatch($sekolahData);

@@ -42,6 +42,16 @@ class CreateSekolahTable extends Migration
         'constraint' => ['aktif', 'nonaktif'],
         'default'    => 'aktif',
       ],
+      'fonnte_token' => [
+          'type'       => 'VARCHAR',
+          'constraint' => 100,
+          'null'       => true,
+      ],
+      'is_wa_aktif' => [
+          'type'       => 'TINYINT',
+          'constraint' => 1,
+          'default'    => 1,
+      ],
       'created_at' => [
         'type'    => 'TIMESTAMP',
         'null'    => true,

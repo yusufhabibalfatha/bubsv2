@@ -17,7 +17,10 @@ class SekolahModel extends Model
         'alamat',
         'latitude',
         'longitude',
-        'status',];
+        'status',
+        'fonnte_token', // Tambahan baru
+        'is_wa_aktif',  // Tambahan baru
+        ];
 
     protected bool $allowEmptyInserts = false;
     protected bool $updateOnlyChanged = true;
@@ -40,6 +43,8 @@ class SekolahModel extends Model
         'latitude'   => 'permit_empty|decimal|greater_than_equal_to[-90]|less_than_equal_to[90]',
         'longitude'  => 'permit_empty|decimal|greater_than_equal_to[-180]|less_than_equal_to[180]',
         'status'     => 'permit_empty|in_list[aktif,nonaktif]',
+        'fonnte_token' => 'permit_empty|max_length[100]',
+        'is_wa_aktif'  => 'permit_empty|in_list[0,1]',
     ];
 
     protected $validationMessages = [

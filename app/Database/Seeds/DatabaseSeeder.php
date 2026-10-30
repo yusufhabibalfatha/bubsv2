@@ -12,6 +12,9 @@ class DatabaseSeeder extends Seeder
     $this->db->disableForeignKeyChecks();
 
     $tables = [
+      'notifikasi_wa_guru',
+      'absensi_guru',
+      'lokasi_sekolah',
       'notifikasi_wa',
       'absensi_mapel_siswa',
       'jurnal_mengajar',
@@ -80,6 +83,19 @@ class DatabaseSeeder extends Seeder
                   . "• Catatan Guru: {catatan}\n"
                   . "----------------------------------------\n"
                   . "_Terima kasih atas perhatian dan kerja samanya._";
+    
+      $templateGuruDefault = "*LAPORAN PRESENSI GURU ({tipe_absen})*\n"
+                  . "*{nama_sekolah}*\n"
+                  . "----------------------------------------\n"
+                  . "• *Nama Guru:* {nama_guru}\n"
+                  . "• *Tanggal:* {tanggal}\n"
+                  . "• *Waktu:* {waktu} WITA\n"
+                  . "• *Status:* *{status}*\n"
+                  . "• *Posisi:* {posisi} ({lokasi})\n"
+                  . "• *Jarak GPS:* {jarak} dari titik sekolah\n"
+                  . "• *Keterangan:* {keterangan}\n"
+                  . "----------------------------------------\n"
+                  . "_Terkirim otomatis ke Grup Sekolah._";
 
     $sekolahData = [
       [
@@ -93,6 +109,11 @@ class DatabaseSeeder extends Seeder
         'fonnte_token' => 'ISI_TOKEN_FONNTE_SMP_DISINI',
         'is_wa_aktif'  => 1,
         'template_wa'  => $templateSmp,
+        'radius_meter'     => 500,
+        'jam_masuk_guru'   => '07:20:00',
+        'jam_pulang_guru'  => '11:30:00',
+        'wa_group_guru_id' => '120363000000000000@g.us', // Ganti di dashboard Master Data nanti
+        'template_wa_guru' => $templateGuruDefault,
       ],
       [
         'id'         => 2,
@@ -105,6 +126,11 @@ class DatabaseSeeder extends Seeder
         'fonnte_token' => 'ISI_TOKEN_FONNTE_SMA_DISINI',
         'is_wa_aktif'  => 1,
         'template_wa'  => $templateSma,
+        'radius_meter'     => 500,
+        'jam_masuk_guru'   => '07:20:00',
+        'jam_pulang_guru'  => '11:30:00',
+        'wa_group_guru_id' => '120363000000000000@g.us', // Ganti di dashboard Master Data nanti
+        'template_wa_guru' => $templateGuruDefault,
       ],
     ];
     $this->db->table('sekolah')->insertBatch($sekolahData);
@@ -344,5 +370,20 @@ class DatabaseSeeder extends Seeder
       ],
     ];
     $this->db->table('absensi_mapel_siswa')->insertBatch($absensiData);
+
+    // ==========================================
+    // 11. SEED TABEL LOKASI SEKOLAH (SPOT KAMPUS)
+    // ==========================================
+    $lokasiData = [
+        ['id' => 1, 'nama_lokasi' => 'Ruang Guru SMP', 'keterangan' => 'Gedung SMP Lantai 1', 'is_aktif' => 1],
+        ['id' => 2, 'nama_lokasi' => 'Ruang Guru SMA', 'keterangan' => 'Gedung SMA Lantai 1', 'is_aktif' => 1],
+        ['id' => 3, 'nama_lokasi' => 'Kantor Tata Usaha (TU)', 'keterangan' => 'Gedung Utama', 'is_aktif' => 1],
+        ['id' => 4, 'nama_lokasi' => 'Perpustakaan', 'keterangan' => 'Area Tengah Kampus', 'is_aktif' => 1],
+        ['id' => 5, 'nama_lokasi' => 'Laboratorium Komputer / IPA', 'keterangan' => 'Gedung Lab', 'is_aktif' => 1],
+        ['id' => 6, 'nama_lokasi' => 'Masjid / Musholla Kampus', 'keterangan' => 'Area Ibadah', 'is_aktif' => 1],
+        ['id' => 7, 'nama_lokasi' => 'Lapangan Utama', 'keterangan' => 'Area Olahraga & Upacara', 'is_aktif' => 1],
+        ['id' => 8, 'nama_lokasi' => 'Ruang UKS / Klinik', 'keterangan' => 'Area Kesehatan', 'is_aktif' => 1],
+    ];
+    $this->db->table('lokasi_sekolah')->insertBatch($lokasiData);
   }
 }

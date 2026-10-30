@@ -105,4 +105,69 @@ class FonnteService
 
         return strtr($template, $replacements);
     }
+
+    /**
+     * Menghitung jarak (dalam meter) antara 2 titik koordinat GPS (Haversine Formula)
+     */
+    public static function hitungJarakMeter(float $lat1, float $lon1, float $lat2, float $lon2): int
+    {
+        $earthRadius = 6371000; // Meter
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return (int) round($earthRadius * $c);
+    }
+
+    /**
+     * Menyusun teks pesan WhatsApp Grup untuk Absensi Guru
+     */
+    public static function formatPesanAbsensiGuru(array $absenGuru, ?string $customTemplate = null): string
+    {
+        $defaultTemplate = "*LAPORAN PRESENSI GURU ({tipe_absen})*\n"
+                         . "*{nama_sekolah}*\n"
+                         . "----------------------------------------\n"
+                         . "• *Nama Guru:* {nama_guru}\n"
+                         . "• *Tanggal:* {tanggal}\n"
+                         . "• *Waktu:* {waktu} WITA\n"
+                         . "• *Status:* *{status}*\n"
+                         . "• *Posisi:* {posisi} ({lokasi})\n"
+                         . "• *Jarak GPS:* {jarak}\n"
+                         . "• *Keterangan:* {keterangan}";
+
+        $template = ! empty(trim((string) $customTemplate)) ? $customTemplate : $defaultTemplate;
+
+        $posisiLabel = ($absenGuru['kategori_posisi'] ?? '') === 'di_sekolah'
+            ? 'Di Area Sekolah'
+            : 'Di Luar Sekolah';
+
+        $lokasiLabel = ! empty($absenGuru['nama_lokasi'])
+            ? $absenGuru['nama_lokasi']
+            : 'Luar Kampus';
+
+        $jarakLabel = ($absenGuru['jarak_meter'] !== null && $absenGuru['jarak_meter'] !== '')
+            ? $absenGuru['jarak_meter'] . ' meter'
+            : '-';
+
+        $replacements = [
+            '{nama_sekolah}' => $absenGuru['nama_sekolah'] ?? '-',
+            '{jenjang}'      => $absenGuru['nama_jenjang'] ?? '-',
+            '{nama_guru}'    => $absenGuru['nama_guru'] ?? '-',
+            '{nip}'          => $absenGuru['nip'] ?: '-',
+            '{tanggal}'      => ! empty($absenGuru['tanggal']) ? date('d-m-Y', strtotime($absenGuru['tanggal'])) : '-',
+            '{tipe_absen}'   => strtoupper($absenGuru['tipe_absen'] ?? 'DATANG'),
+            '{waktu}'        => ! empty($absenGuru['waktu_absen']) ? substr($absenGuru['waktu_absen'], 0, 5) : '-',
+            '{status}'       => strtoupper(str_replace('_', ' ', $absenGuru['status'] ?? 'HADIR')),
+            '{posisi}'       => $posisiLabel,
+            '{lokasi}'       => $lokasiLabel,
+            '{jarak}'        => $jarakLabel,
+            '{keterangan}'   => ! empty($absenGuru['keterangan']) ? $absenGuru['keterangan'] : '-',
+        ];
+
+        return strtr($template, $replacements);
+    }
 }

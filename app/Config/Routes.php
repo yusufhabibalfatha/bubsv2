@@ -33,4 +33,13 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->resource('absensi-mapel-siswa', ['controller' => 'AbsensiMapelSiswaController']);
     $routes->resource('notifikasi-wa', ['controller' => 'NotifikasiWaController', 'only' => ['index']]);
 
+    // =========================================================
+    // ENDPOINT FITUR ABSENSI GURU (GPS & WA GRUP)
+    // =========================================================
+    $routes->get('absensi-guru/dashboard', 'AbsensiGuruController::dashboard');
+    $routes->post('notifikasi-wa-guru/resend/(:num)', 'NotifikasiWaGuruController::resend/$1');
+
+    $routes->resource('lokasi-sekolah', ['controller' => 'LokasiSekolahController']);
+    $routes->resource('absensi-guru', ['controller' => 'AbsensiGuruController']);
+    $routes->resource('notifikasi-wa-guru', ['controller' => 'NotifikasiWaGuruController', 'only' => ['index']]);
 });

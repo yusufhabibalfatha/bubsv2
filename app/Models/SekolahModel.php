@@ -21,6 +21,11 @@ class SekolahModel extends Model
         'fonnte_token',
         'is_wa_aktif',
         'template_wa', 
+        'radius_meter',
+        'jam_masuk_guru',
+        'jam_pulang_guru',
+        'wa_group_guru_id',
+        'template_wa_guru',
     ];
 
     protected bool $allowEmptyInserts = false;

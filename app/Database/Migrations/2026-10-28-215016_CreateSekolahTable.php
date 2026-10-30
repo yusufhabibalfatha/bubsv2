@@ -56,6 +56,28 @@ class CreateSekolahTable extends Migration
           'type' => 'TEXT',
           'null' => true,
       ],
+      'radius_meter' => [
+          'type'       => 'INT',
+          'unsigned'   => true,
+          'default'    => 500,
+      ],
+      'jam_masuk_guru' => [
+          'type'    => 'TIME',
+          'default' => '07:20:00',
+      ],
+      'jam_pulang_guru' => [
+          'type'    => 'TIME',
+          'default' => '11:30:00',
+      ],
+      'wa_group_guru_id' => [
+          'type'       => 'VARCHAR',
+          'constraint' => 100,
+          'null'       => true,
+      ],
+      'template_wa_guru' => [
+          'type' => 'TEXT',
+          'null' => true,
+      ],
       'created_at' => [
         'type'    => 'TIMESTAMP',
         'null'    => true,

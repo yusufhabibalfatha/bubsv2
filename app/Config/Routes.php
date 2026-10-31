@@ -18,6 +18,10 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     // Endpoint khusus Kirim Ulang (Resend) Notifikasi WA yang gagal/pending
     $routes->post('notifikasi-wa/resend/(:num)', 'NotifikasiWaController::resend/$1');
 
+    // Endpoint khusus Statistik Dashboard & Rekap Laporan Kelas
+    $routes->get('laporan/dashboard', 'LaporanController::dashboard');
+    $routes->get('laporan/rekap-kelas', 'LaporanController::rekapKelas');
+
     // Resource Routes Data Master
     $routes->resource('jenjang', ['controller' => 'JenjangController']);
     $routes->resource('sekolah', ['controller' => 'SekolahController']);

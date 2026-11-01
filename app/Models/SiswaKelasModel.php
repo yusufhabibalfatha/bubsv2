@@ -73,8 +73,10 @@ class SiswaKelasModel extends Model
      */
     public function getSiswaByKelas($kelasId, $tahunAjaranId)
     {
-        return $this->select('siswa_kelas.*, siswa.nama as nama_siswa, siswa.jenis_kelamin, siswa.no_hp, siswa.status as status_siswa')
+        return $this->select('siswa_kelas.*, siswa.nama as nama_siswa, siswa.jenis_kelamin, siswa.no_hp, siswa.status as status_siswa, kelas.nama as nama_kelas, kelas.sekolah_id, sekolah.nama as nama_sekolah')
                     ->join('siswa', 'siswa.id = siswa_kelas.siswa_id')
+                    ->join('kelas', 'kelas.id = siswa_kelas.kelas_id')
+                    ->join('sekolah', 'sekolah.id = kelas.sekolah_id', 'left')
                     ->where('siswa_kelas.kelas_id', $kelasId)
                     ->where('siswa_kelas.tahun_ajaran_id', $tahunAjaranId)
                     ->where('siswa_kelas.is_aktif', 1)

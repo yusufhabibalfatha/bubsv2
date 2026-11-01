@@ -17,17 +17,30 @@ class SiswaKelasController extends ResourceController
     {
         $kelasId       = $this->request->getGet('kelas_id');
         $tahunAjaranId = $this->request->getGet('tahun_ajaran_id');
+        $sekolahId     = $this->request->getGet('sekolah_id');
 
         if ($kelasId && $tahunAjaranId) {
             $data = $this->model->getSiswaByKelas($kelasId, $tahunAjaranId);
         } else {
-            $data = $this->model->select('siswa_kelas.*, siswa.nama as nama_siswa, siswa.jenis_kelamin, kelas.nama as nama_kelas, tahun_ajaran.nama_tahun, tahun_ajaran.semester')
+            $builder = $this->model->select('siswa_kelas.*, siswa.nama as nama_siswa, siswa.jenis_kelamin, siswa.no_hp, kelas.nama as nama_kelas, kelas.sekolah_id, sekolah.nama as nama_sekolah, tahun_ajaran.nama_tahun, tahun_ajaran.semester')
                                 ->join('siswa', 'siswa.id = siswa_kelas.siswa_id')
                                 ->join('kelas', 'kelas.id = siswa_kelas.kelas_id')
-                                ->join('tahun_ajaran', 'tahun_ajaran.id = siswa_kelas.tahun_ajaran_id')
-                                ->orderBy('kelas.nama', 'ASC')
-                                ->orderBy('siswa.nama', 'ASC')
-                                ->findAll();
+                                ->join('sekolah', 'sekolah.id = kelas.sekolah_id', 'left')
+                                ->join('tahun_ajaran', 'tahun_ajaran.id = siswa_kelas.tahun_ajaran_id');
+
+            if ($kelasId) {
+                $builder->where('siswa_kelas.kelas_id', $kelasId);
+            }
+            if ($tahunAjaranId) {
+                $builder->where('siswa_kelas.tahun_ajaran_id', $tahunAjaranId);
+            }
+            if ($sekolahId) {
+                $builder->where('kelas.sekolah_id', $sekolahId);
+            }
+
+            $data = $builder->orderBy('kelas.nama', 'ASC')
+                            ->orderBy('siswa.nama', 'ASC')
+                            ->findAll();
         }
 
         return $this->respond([

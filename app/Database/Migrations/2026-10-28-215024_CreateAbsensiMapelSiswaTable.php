@@ -25,7 +25,7 @@ class CreateAbsensiMapelSiswaTable extends Migration
       ],
       'status' => [
         'type'       => 'ENUM',
-        'constraint' => ['hadir', 'izin', 'sakit', 'alpa', 'terlambat', 'dispensasi'],
+        'constraint' => ['hadir', 'izin', 'sakit', 'alpa', 'terlambat'],
         'default'    => 'hadir',
       ],
       'nilai' => [

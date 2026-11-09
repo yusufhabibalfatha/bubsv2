@@ -76,15 +76,16 @@ class LaporanController extends BaseController
         $rawAbsen = $absenBuilder->get()->getResultArray();
 
         $statistikAbsen = [
-            'hadir'      => 0,
-            'izin'       => 0,
-            'sakit'      => 0,
-            'alpa'       => 0,
-            'terlambat'  => 0,
-            'dispensasi' => 0,
+            'hadir'     => 0,
+            'izin'      => 0,
+            'sakit'     => 0,
+            'alpa'      => 0,
+            'terlambat' => 0,
         ];
         foreach ($rawAbsen as $row) {
-            $statistikAbsen[$row['status']] = (int) $row['jumlah'];
+            if (array_key_exists($row['status'], $statistikAbsen)) {
+                $statistikAbsen[$row['status']] = (int) $row['jumlah'];
+            }
         }
 
         // 6. Statistik Pengiriman Notifikasi WA Hari Ini
@@ -176,7 +177,6 @@ class LaporanController extends BaseController
                                SUM(CASE WHEN absensi_mapel_siswa.status = 'terlambat' THEN 1 ELSE 0 END) as terlambat,
                                SUM(CASE WHEN absensi_mapel_siswa.status = 'sakit' THEN 1 ELSE 0 END) as sakit,
                                SUM(CASE WHEN absensi_mapel_siswa.status = 'izin' THEN 1 ELSE 0 END) as izin,
-                               SUM(CASE WHEN absensi_mapel_siswa.status = 'dispensasi' THEN 1 ELSE 0 END) as dispensasi,
                                SUM(CASE WHEN absensi_mapel_siswa.status = 'alpa' THEN 1 ELSE 0 END) as alpa,
                                ROUND(AVG(absensi_mapel_siswa.nilai), 2) as rata_rata_nilai
                            ")
@@ -222,7 +222,6 @@ class LaporanController extends BaseController
                 'terlambat'        => $telat,
                 'sakit'            => (int) ($stat['sakit'] ?? 0),
                 'izin'             => (int) ($stat['izin'] ?? 0),
-                'dispensasi'       => (int) ($stat['dispensasi'] ?? 0),
                 'alpa'             => (int) ($stat['alpa'] ?? 0),
                 'persentase_hadir' => $persentaseHadir,
                 'rata_rata_nilai'  => isset($stat['rata_rata_nilai']) ? (float) $stat['rata_rata_nilai'] : null,

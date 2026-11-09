@@ -196,7 +196,7 @@ CREATE TABLE absensi_mapel_siswa (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     jurnal_mengajar_id BIGINT UNSIGNED NOT NULL,
     siswa_id BIGINT UNSIGNED NOT NULL,
-    status ENUM('hadir','izin','sakit','alpa','terlambat','dispensasi') NOT NULL DEFAULT 'hadir',
+    status ENUM('hadir','izin','sakit','alpa','terlambat') NOT NULL DEFAULT 'hadir',
     nilai DECIMAL(5,2) NULL,
     catatan TEXT NULL,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,

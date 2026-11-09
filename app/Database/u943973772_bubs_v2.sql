@@ -55,7 +55,7 @@ CREATE TABLE `absensi_mapel_siswa` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `jurnal_mengajar_id` bigint(20) UNSIGNED NOT NULL,
   `siswa_id` bigint(20) UNSIGNED NOT NULL,
-  `status` enum('hadir','izin','sakit','alpa','terlambat','dispensasi') NOT NULL DEFAULT 'hadir',
+  `status` enum('hadir','izin','sakit','alpa','terlambat') NOT NULL DEFAULT 'hadir',
   `nilai` decimal(5,2) DEFAULT NULL,
   `catatan` text DEFAULT NULL,
   `keterangan` text DEFAULT NULL,

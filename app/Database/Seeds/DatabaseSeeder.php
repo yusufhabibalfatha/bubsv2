@@ -224,6 +224,7 @@ class DatabaseSeeder extends Seeder
         'nama'            => 'VII-A',
         'tingkat'         => '7',
         'wali_guru_id'    => 1,
+        'wa_group_id'     => '120363000000000001@g.us',
         'is_aktif'        => 1,
       ],
       [
@@ -233,6 +234,7 @@ class DatabaseSeeder extends Seeder
         'nama'            => 'VIII-A',
         'tingkat'         => '8',
         'wali_guru_id'    => 2,
+        'wa_group_id'     => '120363000000000002@g.us',
         'is_aktif'        => 1,
       ],
       // Kelas SMA
@@ -243,6 +245,7 @@ class DatabaseSeeder extends Seeder
         'nama'            => 'X-1',
         'tingkat'         => '10',
         'wali_guru_id'    => 3,
+        'wa_group_id'     => '120363000000000003@g.us',
         'is_aktif'        => 1,
       ],
       [
@@ -252,6 +255,7 @@ class DatabaseSeeder extends Seeder
         'nama'            => 'XI-1',
         'tingkat'         => '11',
         'wali_guru_id'    => 4,
+        'wa_group_id'     => '120363000000000004@g.us',
         'is_aktif'        => 1,
       ],
     ];

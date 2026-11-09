@@ -15,13 +15,13 @@ class CreateNotifikasiWaTable extends Migration
                 'unsigned'       => true,
                 'auto_increment' => true,
             ],
-            'absensi_mapel_siswa_id' => [
+            'jurnal_mengajar_id' => [
                 'type'     => 'BIGINT',
                 'unsigned' => true,
             ],
             'no_tujuan' => [
                 'type'       => 'VARCHAR',
-                'constraint' => 30,
+                'constraint' => 100,
                 'null'       => true,
             ],
             'isi_pesan' => [
@@ -59,16 +59,16 @@ class CreateNotifikasiWaTable extends Migration
         ]);
 
         $this->forge->addKey('id', true);
-        $this->forge->addKey('absensi_mapel_siswa_id', false, false, 'idx_notif_absensi');
+        $this->forge->addKey('jurnal_mengajar_id', false, false, 'idx_notif_jurnal');
         $this->forge->addKey('status_kirim', false, false, 'idx_notif_status');
 
         $this->forge->addForeignKey(
-            'absensi_mapel_siswa_id',
-            'absensi_mapel_siswa',
+            'jurnal_mengajar_id',
+            'jurnal_mengajar',
             'id',
             'CASCADE',
             'CASCADE',
-            'fk_notif_absensi'
+            'fk_notif_jurnal'
         );
 
         $this->forge->createTable('notifikasi_wa', true, [

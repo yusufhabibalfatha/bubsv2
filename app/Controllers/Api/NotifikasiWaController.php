@@ -49,25 +49,17 @@ class NotifikasiWaController extends ResourceController
         // Cari semua log notifikasi yang belum berhasil pada tanggal tersebut
         $builder = $this->model->select('
             notifikasi_wa.id as id,
-            notifikasi_wa.absensi_mapel_siswa_id,
+            notifikasi_wa.jurnal_mengajar_id,
             notifikasi_wa.no_tujuan,
             notifikasi_wa.status_kirim,
-            absensi_mapel_siswa.siswa_id,
-            absensi_mapel_siswa.status as status_absen,
-            absensi_mapel_siswa.nilai,
-            absensi_mapel_siswa.catatan,
-            absensi_mapel_siswa.keterangan,
-            absensi_mapel_siswa.jurnal_mengajar_id,
-            siswa.nama as nama_siswa,
-            siswa.no_hp as siswa_no_hp,
+            kelas.id as kelas_id,
+            kelas.nama as nama_kelas,
+            kelas.wa_group_id,
             kelas.sekolah_id,
             sekolah.nama as nama_sekolah,
-            sekolah.fonnte_token,
-            sekolah.template_wa
+            sekolah.fonnte_token
         ')
-        ->join('absensi_mapel_siswa', 'absensi_mapel_siswa.id = notifikasi_wa.absensi_mapel_siswa_id')
-        ->join('siswa', 'siswa.id = absensi_mapel_siswa.siswa_id')
-        ->join('jurnal_mengajar', 'jurnal_mengajar.id = absensi_mapel_siswa.jurnal_mengajar_id')
+        ->join('jurnal_mengajar', 'jurnal_mengajar.id = notifikasi_wa.jurnal_mengajar_id')
         ->join('kelas', 'kelas.id = jurnal_mengajar.kelas_id')
         ->join('sekolah', 'sekolah.id = kelas.sekolah_id')
         ->where('jurnal_mengajar.tanggal', $tanggal);
@@ -96,8 +88,8 @@ class NotifikasiWaController extends ResourceController
             ]);
         }
 
-        $jurnalModel = new JurnalMengajarModel();
-        $jurnalCache = [];
+        $jurnalModel  = new JurnalMengajarModel();
+        $absensiModel = new AbsensiMapelSiswaModel();
 
         // Kelompokkan data per sekolah untuk pengiriman bulk via Fonnte token sekolah masing-masing
         $groupedBySchool = [];
@@ -114,7 +106,6 @@ class NotifikasiWaController extends ResourceController
             $firstSekolah = $items[0];
             $token        = trim((string) ($firstSekolah['fonnte_token'] ?? ''));
             $namaSekolah  = $firstSekolah['nama_sekolah'] ?? 'Sekolah';
-            $templateWa   = $firstSekolah['template_wa'] ?? null;
 
             if (empty($token) || str_starts_with($token, 'ISI_TOKEN_')) {
                 foreach ($items as $item) {
@@ -132,44 +123,33 @@ class NotifikasiWaController extends ResourceController
             $itemMap      = [];
 
             foreach ($items as $item) {
-                $noHp = trim((string) ($item['siswa_no_hp'] ?? $item['no_tujuan']));
-                if (empty($noHp)) {
+                $waGroupId = trim((string) ($item['wa_group_id'] ?? $item['no_tujuan']));
+                if (empty($waGroupId)) {
                     $this->model->update($item['id'], [
                         'status_kirim'         => 'gagal',
-                        'fonnte_status_detail' => 'Nomor HP siswa masih kosong. Lengkapi di Data Siswa.',
+                        'fonnte_status_detail' => 'ID Grup WA Kelas (' . ($item['nama_kelas'] ?? '-') . ') masih kosong. Lengkapi di Master Kelas.',
                         'waktu_kirim'          => $now,
                     ]);
                     $totalGagal++;
                     continue;
                 }
 
-                $jurnalId = $item['jurnal_mengajar_id'];
-                if (! isset($jurnalCache[$jurnalId])) {
-                    $jurnalCache[$jurnalId] = $jurnalModel->getJurnalLengkap($jurnalId);
-                }
-                $jurnal = $jurnalCache[$jurnalId];
+                $jurnalId      = (int) $item['jurnal_mengajar_id'];
+                $jurnal        = $jurnalModel->getJurnalLengkap($jurnalId);
+                $daftarAbsensi = $absensiModel->getAbsensiByJurnal($jurnalId);
 
-                $absenData = [
-                    'id'         => $item['absensi_mapel_siswa_id'],
-                    'nama_siswa' => $item['nama_siswa'],
-                    'status'     => $item['status_absen'],
-                    'nilai'      => $item['nilai'],
-                    'keterangan' => $item['keterangan'],
-                    'catatan'    => $item['catatan'],
-                ];
-
-                $isiPesanBaru = FonnteService::formatPesanAbsensi($jurnal, $absenData, $templateWa);
+                $isiPesanBaru = FonnteService::formatPesanRingkasanKelas($jurnal, $daftarAbsensi);
 
                 $bulkIndex = count($bulkMessages);
                 $bulkMessages[] = [
-                    'target'  => $noHp,
+                    'target'  => $waGroupId,
                     'message' => $isiPesanBaru,
                     'delay'   => '2-4',
                 ];
 
                 $itemMap[$bulkIndex] = [
                     'id'        => $item['id'],
-                    'no_tujuan' => $noHp,
+                    'no_tujuan' => $waGroupId,
                     'isi_pesan' => $isiPesanBaru,
                 ];
             }
@@ -222,8 +202,7 @@ class NotifikasiWaController extends ResourceController
 
     /**
      * POST /api/notifikasi-wa/resend/{id}
-     * Fitur untuk Admin: Mengirim ulang 1 pesan WA yang sebelumnya gagal/pending
-     * (Otomatis me-refresh nomor HP terbaru siswa & template_wa terbaru sekolah)
+     * Fitur untuk Admin: Mengirim ulang 1 pesan ringkasan WA Grup Kelas yang sebelumnya gagal/pending
      */
     public function resend($id = null)
     {
@@ -236,37 +215,33 @@ class NotifikasiWaController extends ResourceController
         $jurnalModel  = new JurnalMengajarModel();
         $kelasModel   = new KelasModel();
         $sekolahModel = new SekolahModel();
-        $siswaModel   = new SiswaModel();
 
-        $absen = $absensiModel->find($notif['absensi_mapel_siswa_id']);
-        if (! $absen) {
-            return $this->failNotFound('Data absensi terkait tidak ditemukan.');
+        $jurnalId = (int) $notif['jurnal_mengajar_id'];
+        $jurnal   = $jurnalModel->getJurnalLengkap($jurnalId);
+        if (! $jurnal) {
+            return $this->failNotFound('Data jurnal mengajar terkait tidak ditemukan.');
         }
 
-        $siswa               = $siswaModel->find($absen['siswa_id']);
-        $absen['nama_siswa'] = $siswa['nama'] ?? '-';
-        $noHp                = trim((string) ($siswa['no_hp'] ?? $notif['no_tujuan']));
+        $kelas     = $kelasModel->find($jurnal['kelas_id']);
+        $sekolah   = $kelas ? $sekolahModel->find($kelas['sekolah_id']) : null;
+        $waGroupId = trim((string) ($kelas['wa_group_id'] ?? $notif['no_tujuan']));
 
-        if (empty($noHp)) {
-            return $this->fail('Nomor HP siswa masih kosong. Silakan lengkapi di menu Data Siswa terlebih dahulu.', 400);
+        if (empty($waGroupId)) {
+            return $this->fail('ID Grup WhatsApp untuk kelas ' . ($kelas['nama'] ?? '-') . ' masih kosong. Silakan lengkapi di menu Master Kelas terlebih dahulu.', 400);
         }
-
-        $jurnal  = $jurnalModel->getJurnalLengkap($absen['jurnal_mengajar_id']);
-        $kelas   = $kelasModel->find($jurnal['kelas_id']);
-        $sekolah = $sekolahModel->find($kelas['sekolah_id']);
 
         $token = trim((string) ($sekolah['fonnte_token'] ?? ''));
         if (empty($token) || str_starts_with($token, 'ISI_TOKEN_')) {
-            return $this->fail('Token Fonnte untuk ' . $sekolah['nama'] . ' belum diatur.', 400);
+            return $this->fail('Token Fonnte untuk ' . ($sekolah['nama'] ?? 'Sekolah') . ' belum diatur.', 400);
         }
 
-        // Susun ulang pesan dengan template_wa sekolah terbaru
-        $isiPesanBaru = FonnteService::formatPesanAbsensi($jurnal, $absen, $sekolah['template_wa'] ?? null);
+        $daftarAbsensi = $absensiModel->getAbsensiByJurnal($jurnalId);
+        $isiPesanBaru  = FonnteService::formatPesanRingkasanKelas($jurnal, $daftarAbsensi);
 
         $fonnte   = new FonnteService();
         $response = $fonnte->sendBulk($token, [
             [
-                'target'  => $noHp,
+                'target'  => $waGroupId,
                 'message' => $isiPesanBaru,
             ],
         ]);
@@ -276,7 +251,7 @@ class NotifikasiWaController extends ResourceController
         $msgId     = $response['id'][0] ?? null;
 
         $this->model->update($id, [
-            'no_tujuan'            => $noHp,
+            'no_tujuan'            => $waGroupId,
             'isi_pesan'            => $isiPesanBaru,
             'status_kirim'         => $isSuccess ? 'berhasil' : 'gagal',
             'fonnte_message_id'    => $msgId ? (string) $msgId : null,
@@ -286,7 +261,7 @@ class NotifikasiWaController extends ResourceController
 
         return $this->respond([
             'status'  => $isSuccess ? 200 : 400,
-            'message' => $isSuccess ? 'Pesan WhatsApp berhasil dikirim ulang.' : 'Gagal mengirim ulang pesan: ' . $detail,
+            'message' => $isSuccess ? 'Pesan ringkasan berhasil dikirim ulang ke Grup WA Kelas.' : 'Gagal mengirim ulang pesan: ' . $detail,
             'data'    => $this->model->find($id),
         ]);
     }

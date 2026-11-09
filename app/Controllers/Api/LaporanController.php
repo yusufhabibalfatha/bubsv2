@@ -91,8 +91,7 @@ class LaporanController extends BaseController
         // 6. Statistik Pengiriman Notifikasi WA Hari Ini
         $waBuilder = $db->table('notifikasi_wa')
                         ->select('notifikasi_wa.status_kirim, COUNT(notifikasi_wa.id) as jumlah')
-                        ->join('absensi_mapel_siswa', 'absensi_mapel_siswa.id = notifikasi_wa.absensi_mapel_siswa_id')
-                        ->join('jurnal_mengajar', 'jurnal_mengajar.id = absensi_mapel_siswa.jurnal_mengajar_id')
+                        ->join('jurnal_mengajar', 'jurnal_mengajar.id = notifikasi_wa.jurnal_mengajar_id')
                         ->join('kelas', 'kelas.id = jurnal_mengajar.kelas_id')
                         ->where('jurnal_mengajar.tanggal', $tanggal)
                         ->groupBy('notifikasi_wa.status_kirim');

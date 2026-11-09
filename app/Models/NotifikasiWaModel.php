@@ -13,7 +13,7 @@ class NotifikasiWaModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'absensi_mapel_siswa_id',
+        'jurnal_mengajar_id',
         'no_tujuan',
         'isi_pesan',
         'status_kirim',
@@ -59,17 +59,19 @@ class NotifikasiWaModel extends Model
     {
         $builder = $this->select('
                             notifikasi_wa.*,
-                            absensi_mapel_siswa.status as status_absen,
-                            siswa.nama as nama_siswa,
                             jurnal_mengajar.tanggal,
                             jurnal_mengajar.jam_ke,
+                            jurnal_mengajar.jam_mulai,
+                            jurnal_mengajar.jam_selesai,
+                            jurnal_mengajar.materi,
+                            guru.nama as nama_guru,
                             mata_pelajaran.nama as nama_mapel,
                             kelas.nama as nama_kelas,
+                            kelas.wa_group_id,
                             sekolah.nama as nama_sekolah
                         ')
-                        ->join('absensi_mapel_siswa', 'absensi_mapel_siswa.id = notifikasi_wa.absensi_mapel_siswa_id')
-                        ->join('siswa', 'siswa.id = absensi_mapel_siswa.siswa_id')
-                        ->join('jurnal_mengajar', 'jurnal_mengajar.id = absensi_mapel_siswa.jurnal_mengajar_id')
+                        ->join('jurnal_mengajar', 'jurnal_mengajar.id = notifikasi_wa.jurnal_mengajar_id')
+                        ->join('guru', 'guru.id = jurnal_mengajar.guru_id', 'left')
                         ->join('mata_pelajaran', 'mata_pelajaran.id = jurnal_mengajar.mata_pelajaran_id', 'left')
                         ->join('kelas', 'kelas.id = jurnal_mengajar.kelas_id')
                         ->join('sekolah', 'sekolah.id = kelas.sekolah_id');

@@ -18,6 +18,7 @@ class KelasModel extends Model
         'nama',
         'tingkat',
         'wali_guru_id',
+        'wa_group_id',
         'is_aktif',
     ];
 
@@ -41,6 +42,7 @@ class KelasModel extends Model
         'nama'            => 'required|max_length[50]',
         'tingkat'         => 'permit_empty|max_length[30]',
         'wali_guru_id'    => 'permit_empty|is_natural_no_zero|is_not_unique[guru.id]',
+        'wa_group_id'     => 'permit_empty|max_length[100]',
         'is_aktif'        => 'permit_empty|in_list[0,1]',
     ];
 

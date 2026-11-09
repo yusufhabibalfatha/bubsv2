@@ -37,6 +37,11 @@ class CreateKelasTable extends Migration
         'unsigned' => true,
         'null'     => true,
       ],
+      'wa_group_id' => [
+        'type'       => 'VARCHAR',
+        'constraint' => 100,
+        'null'       => true,
+      ],
       'is_aktif' => [
         'type'       => 'TINYINT',
         'constraint' => 1,

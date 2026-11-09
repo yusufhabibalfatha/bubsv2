@@ -129,6 +129,7 @@ CREATE TABLE `kelas` (
   `nama` varchar(50) NOT NULL,
   `tingkat` varchar(30) DEFAULT NULL,
   `wali_guru_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `wa_group_id` varchar(100) DEFAULT NULL,
   `is_aktif` tinyint(1) NOT NULL DEFAULT 1,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -186,8 +187,8 @@ CREATE TABLE `migrations` (
 
 CREATE TABLE `notifikasi_wa` (
   `id` bigint(20) UNSIGNED NOT NULL,
-  `absensi_mapel_siswa_id` bigint(20) UNSIGNED NOT NULL,
-  `no_tujuan` varchar(30) DEFAULT NULL,
+  `jurnal_mengajar_id` bigint(20) UNSIGNED NOT NULL,
+  `no_tujuan` varchar(100) DEFAULT NULL,
   `isi_pesan` text NOT NULL,
   `status_kirim` enum('pending','berhasil','gagal') NOT NULL DEFAULT 'pending',
   `fonnte_message_id` varchar(50) DEFAULT NULL,
@@ -375,7 +376,7 @@ ALTER TABLE `migrations`
 --
 ALTER TABLE `notifikasi_wa`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_notif_absensi` (`absensi_mapel_siswa_id`),
+  ADD KEY `idx_notif_jurnal` (`jurnal_mengajar_id`),
   ADD KEY `idx_notif_status` (`status_kirim`);
 
 --
@@ -559,7 +560,7 @@ ALTER TABLE `kelas`
 -- Constraints for table `notifikasi_wa`
 --
 ALTER TABLE `notifikasi_wa`
-  ADD CONSTRAINT `fk_notif_absensi` FOREIGN KEY (`absensi_mapel_siswa_id`) REFERENCES `absensi_mapel_siswa` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_notif_jurnal` FOREIGN KEY (`jurnal_mengajar_id`) REFERENCES `jurnal_mengajar` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `notifikasi_wa_guru`

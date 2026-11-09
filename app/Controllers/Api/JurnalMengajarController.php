@@ -199,7 +199,7 @@ class JurnalMengajarController extends ResourceController
     }
 
     /**
-     * Helper Internal: Merangkai pesan WA dari template_wa sekolah, menembak API Fonnte, & mencatat ke tabel notifikasi_wa
+     * Helper Internal: Merangkai pesan ringkasan absensi kelas, mengirim ke Grup WA Kelas via Fonnte sekolah, & mencatat ke tabel notifikasi_wa
      */
     protected function prosesKirimWaJurnal(int $jurnalId): array
     {
@@ -208,11 +208,9 @@ class JurnalMengajarController extends ResourceController
             return ['dikirim' => false, 'keterangan' => 'Jurnal tidak ditemukan.'];
         }
 
-        // Ambil konfigurasi sekolah (token & template_wa) melalui tabel kelas
         $kelasModel   = new KelasModel();
         $sekolahModel = new SekolahModel();
         $absensiModel = new AbsensiMapelSiswaModel();
-        $siswaModel   = new SiswaModel();
         $notifModel   = new NotifikasiWaModel();
 
         $kelas   = $kelasModel->find($jurnal['kelas_id']);
@@ -227,91 +225,96 @@ class JurnalMengajarController extends ResourceController
             return ['dikirim' => false, 'keterangan' => 'Tidak ada daftar absensi siswa.'];
         }
 
-        $isWaAktif  = (int) ($sekolah['is_wa_aktif'] ?? 0) === 1;
-        $token      = trim((string) ($sekolah['fonnte_token'] ?? ''));
-        $templateWa = $sekolah['template_wa'] ?? null;
+        $isWaAktif = (int) ($sekolah['is_wa_aktif'] ?? 0) === 1;
+        $token     = trim((string) ($sekolah['fonnte_token'] ?? ''));
+        $waGroupId = trim((string) ($kelas['wa_group_id'] ?? ''));
+        $namaKelas = $kelas['nama'] ?? '-';
 
-        $bulkMessages = [];
-        $notifRecords = []; // Menyimpan ID baris notifikasi_wa yang siap dikirim ke Fonnte
+        $isiPesan = FonnteService::formatPesanRingkasanKelas($jurnal, $daftarAbsensi);
 
-        foreach ($daftarAbsensi as $absen) {
-            $siswa = $siswaModel->find($absen['siswa_id']);
-            $noHp  = trim((string) ($siswa['no_hp'] ?? ''));
-
-            $isiPesan = FonnteService::formatPesanAbsensi($jurnal, $absen, $templateWa);
-
-            // Jika nomor HP siswa/ortu kosong, langsung catat gagal di log
-            if (empty($noHp)) {
-                $notifModel->insert([
-                    'absensi_mapel_siswa_id' => $absen['id'],
-                    'no_tujuan'              => null,
-                    'isi_pesan'              => $isiPesan,
-                    'status_kirim'           => 'gagal',
-                    'fonnte_status_detail'   => 'Nomor HP siswa/orang tua kosong.',
-                    'waktu_kirim'            => date('Y-m-d H:i:s'),
-                ]);
-                continue;
-            }
-
-            // Jika fitur WA sekolah dimatikan atau token belum diisi
-            if (! $isWaAktif || empty($token) || str_starts_with($token, 'ISI_TOKEN_')) {
-                $notifModel->insert([
-                    'absensi_mapel_siswa_id' => $absen['id'],
-                    'no_tujuan'              => $noHp,
-                    'isi_pesan'              => $isiPesan,
-                    'status_kirim'           => 'pending',
-                    'fonnte_status_detail'   => ! $isWaAktif ? 'Fitur WA sekolah sedang dinonaktifkan.' : 'Token Fonnte sekolah belum diatur.',
-                    'waktu_kirim'            => null,
-                ]);
-                continue;
-            }
-
-            // Simpan status awal pending sebelum ditembak ke Fonnte
+        // Jika ID Grup WA Kelas kosong, catat gagal di log
+        if (empty($waGroupId)) {
+            $alasan = "ID Grup WhatsApp untuk Kelas {$namaKelas} belum diisi di menu Master Kelas.";
             $notifModel->insert([
-                'absensi_mapel_siswa_id' => $absen['id'],
-                'no_tujuan'              => $noHp,
-                'isi_pesan'              => $isiPesan,
-                'status_kirim'           => 'pending',
+                'jurnal_mengajar_id'   => $jurnalId,
+                'no_tujuan'            => null,
+                'isi_pesan'            => $isiPesan,
+                'status_kirim'         => 'gagal',
+                'fonnte_status_detail' => $alasan,
+                'waktu_kirim'          => date('Y-m-d H:i:s'),
             ]);
-            $notifId = $notifModel->getInsertID();
 
-            $bulkMessages[] = [
-                'target'  => $noHp,
-                'message' => $isiPesan,
-                'delay'   => '2-4', // Jeda acak 2-4 detik antar siswa agar aman dari blokir WA
-            ];
-            $notifRecords[] = $notifId;
-        }
-
-        if (empty($bulkMessages)) {
             return [
-                'dikirim'    => false,
-                'keterangan' => 'Pesan dicatat ke log, namun tidak dikirim ke Fonnte (cek pengaturan token/nomor HP siswa).',
+                'dikirim'        => false,
+                'nama_kelas'     => $namaKelas,
+                'wa_group_id'    => null,
+                'keterangan'     => $alasan,
+                'teks_ringkasan' => $isiPesan,
             ];
         }
 
-        // Kirim 1 kali HTTP Request Bulk ke Fonnte
+        // Jika fitur WA sekolah dimatikan atau token belum diisi
+        if (! $isWaAktif || empty($token) || str_starts_with($token, 'ISI_TOKEN_')) {
+            $alasan = ! $isWaAktif
+                ? 'Fitur WA sekolah sedang dinonaktifkan.'
+                : 'Token Fonnte sekolah belum diatur.';
+
+            $notifModel->insert([
+                'jurnal_mengajar_id'   => $jurnalId,
+                'no_tujuan'            => $waGroupId,
+                'isi_pesan'            => $isiPesan,
+                'status_kirim'         => 'pending',
+                'fonnte_status_detail' => $alasan,
+                'waktu_kirim'          => null,
+            ]);
+
+            return [
+                'dikirim'        => false,
+                'nama_kelas'     => $namaKelas,
+                'wa_group_id'    => $waGroupId,
+                'keterangan'     => $alasan,
+                'teks_ringkasan' => $isiPesan,
+            ];
+        }
+
+        // Simpan status awal pending sebelum ditembak ke Fonnte
+        $notifModel->insert([
+            'jurnal_mengajar_id' => $jurnalId,
+            'no_tujuan'          => $waGroupId,
+            'isi_pesan'          => $isiPesan,
+            'status_kirim'       => 'pending',
+        ]);
+        $notifId = $notifModel->getInsertID();
+
+        // Kirim 1 pesan ringkasan ke Grup WA Kelas melalui Fonnte
         $fonnte   = new FonnteService();
-        $response = $fonnte->sendBulk($token, $bulkMessages);
-        $now      = date('Y-m-d H:i:s');
+        $response = $fonnte->sendBulk($token, [
+            [
+                'target'  => $waGroupId,
+                'message' => $isiPesan,
+            ],
+        ]);
+        $now = date('Y-m-d H:i:s');
 
         $isSuccess = ! empty($response['status']) && $response['status'] === true;
         $detail    = $response['detail'] ?? ($response['reason'] ?? 'Tidak ada detail dari Fonnte');
-        $msgIds    = $response['id'] ?? [];
+        $msgId     = $response['id'][0] ?? null;
 
-        foreach ($notifRecords as $index => $notifId) {
-            $notifModel->update($notifId, [
-                'status_kirim'         => $isSuccess ? 'berhasil' : 'gagal',
-                'fonnte_message_id'    => $isSuccess && isset($msgIds[$index]) ? (string) $msgIds[$index] : null,
-                'fonnte_status_detail' => $detail,
-                'waktu_kirim'          => $now,
-            ]);
-        }
+        $notifModel->update($notifId, [
+            'status_kirim'         => $isSuccess ? 'berhasil' : 'gagal',
+            'fonnte_message_id'    => $isSuccess && $msgId ? (string) $msgId : null,
+            'fonnte_status_detail' => $detail,
+            'waktu_kirim'          => $now,
+        ]);
 
         return [
-            'dikirim'       => $isSuccess,
-            'jumlah_target' => count($bulkMessages),
-            'respon_fonnte' => $detail,
+            'dikirim'        => $isSuccess,
+            'nama_kelas'     => $namaKelas,
+            'wa_group_id'    => $waGroupId,
+            'jumlah_target'  => 1,
+            'respon_fonnte'  => $detail,
+            'keterangan'     => $detail,
+            'teks_ringkasan' => $isiPesan,
         ];
     }
 }

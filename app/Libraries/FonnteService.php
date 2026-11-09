@@ -63,7 +63,88 @@ class FonnteService
 
         return $decoded;
     }
-/**
+    /**
+     * Menyusun teks ringkasan absensi kelas untuk dikirim ke Grup WhatsApp Kelas
+     */
+    public static function formatPesanRingkasanKelas(array $infoJurnal, array $daftarAbsensi): string
+    {
+        $namaKelas  = $infoJurnal['nama_kelas'] ?? '-';
+        $namaMapel  = $infoJurnal['nama_mapel'] ?? '-';
+        $namaGuru   = $infoJurnal['nama_guru'] ?? '-';
+        $materi     = ! empty($infoJurnal['materi']) ? $infoJurnal['materi'] : '-';
+        $jamMulai   = ! empty($infoJurnal['jam_mulai']) ? substr($infoJurnal['jam_mulai'], 0, 5) : '-';
+        $jamSelesai = ! empty($infoJurnal['jam_selesai']) ? substr($infoJurnal['jam_selesai'], 0, 5) : '-';
+
+        // Format Hari & Tanggal Bahasa Indonesia (contoh: Senin, 9 November 2026)
+        $hariTgl = '-';
+        if (! empty($infoJurnal['tanggal'])) {
+            $ts        = strtotime($infoJurnal['tanggal']);
+            $namaHari  = [
+                'Sunday'    => 'Minggu',
+                'Monday'    => 'Senin',
+                'Tuesday'   => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday'  => 'Kamis',
+                'Friday'    => 'Jumat',
+                'Saturday'  => 'Sabtu',
+            ];
+            $namaBulan = [
+                1  => 'Januari',
+                2  => 'Februari',
+                3  => 'Maret',
+                4  => 'April',
+                5  => 'Mei',
+                6  => 'Juni',
+                7  => 'Juli',
+                8  => 'Agustus',
+                9  => 'September',
+                10 => 'Oktober',
+                11 => 'November',
+                12 => 'Desember',
+            ];
+            $hari    = $namaHari[date('l', $ts)] ?? date('l', $ts);
+            $tgl     = (int) date('j', $ts);
+            $bulan   = $namaBulan[(int) date('n', $ts)] ?? date('F', $ts);
+            $tahun   = date('Y', $ts);
+            $hariTgl = "{$hari}, {$tgl} {$bulan} {$tahun}";
+        }
+
+        $msg  = "📅 *Presensi Kelas {$namaKelas}*\n";
+        $msg .= "*Hari/Tgl:* {$hariTgl}\n";
+        $msg .= "*Mapel:* {$namaMapel}\n";
+        $msg .= "*Jam:* {$jamMulai} - {$jamSelesai}\n";
+        $msg .= "*Guru:* {$namaGuru}\n";
+        $msg .= "*Materi:* {$materi}\n\n";
+
+        $urutan = [
+            ['key' => 'hadir', 'label' => 'Hadir', 'icon' => '✅'],
+            ['key' => 'terlambat', 'label' => 'Terlambat', 'icon' => '🕐'],
+            ['key' => 'izin', 'label' => 'Izin', 'icon' => '📋'],
+            ['key' => 'sakit', 'label' => 'Sakit', 'icon' => '🤒'],
+            ['key' => 'alpa', 'label' => 'Alpa', 'icon' => '❌'],
+        ];
+
+        foreach ($urutan as $kat) {
+            $grup = array_filter($daftarAbsensi, static fn ($s) => ($s['status'] ?? '') === $kat['key']);
+            if (! empty($grup)) {
+                $jumlah = count($grup);
+                $msg   .= "{$kat['icon']} *{$kat['label']} ({$jumlah}):*\n";
+                foreach ($grup as $s) {
+                    $namaSiswa = $s['nama_siswa'] ?? '-';
+                    $ket       = ! empty($s['keterangan']) ? " ({$s['keterangan']})" : '';
+                    $msg      .= "- {$namaSiswa}{$ket}\n";
+                }
+                $msg .= "\n";
+            }
+        }
+
+        $totalSiswa = count($daftarAbsensi);
+        $msg       .= "📊 *Total:* {$totalSiswa} Siswa";
+
+        return $msg;
+    }
+
+    /**
      * Menyusun teks pesan WhatsApp berdasarkan template_wa milik sekolah masing-masing
      */
     public static function formatPesanAbsensi(array $infoJurnal, array $infoSiswa, ?string $customTemplate = null): string

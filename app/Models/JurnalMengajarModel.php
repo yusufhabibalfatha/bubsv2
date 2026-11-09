@@ -95,7 +95,7 @@ class JurnalMengajarModel extends Model
      */
     public function getJurnalLengkap($jurnalId = null)
     {
-        $builder = $this->select('jurnal_mengajar.*, kelas.nama as nama_kelas, sekolah.nama as nama_sekolah, guru.nama as nama_guru, mata_pelajaran.nama as nama_mapel, tahun_ajaran.nama_tahun, tahun_ajaran.semester')
+        $builder = $this->select('jurnal_mengajar.*, kelas.nama as nama_kelas, kelas.wa_group_id, kelas.sekolah_id, sekolah.nama as nama_sekolah, guru.nama as nama_guru, mata_pelajaran.nama as nama_mapel, tahun_ajaran.nama_tahun, tahun_ajaran.semester')
                         ->join('kelas', 'kelas.id = jurnal_mengajar.kelas_id')
                         ->join('sekolah', 'sekolah.id = kelas.sekolah_id')
                         ->join('guru', 'guru.id = jurnal_mengajar.guru_id')

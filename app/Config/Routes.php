@@ -16,6 +16,7 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->get('tahun-ajaran/aktif', 'TahunAjaranController::aktif');
 
     // Endpoint khusus Kirim Ulang (Resend) Notifikasi WA yang gagal/pending
+    $routes->post('notifikasi-wa/resend-all', 'NotifikasiWaController::resendAll');
     $routes->post('notifikasi-wa/resend/(:num)', 'NotifikasiWaController::resend/$1');
 
     // Endpoint khusus Statistik Dashboard & Rekap Laporan Kelas

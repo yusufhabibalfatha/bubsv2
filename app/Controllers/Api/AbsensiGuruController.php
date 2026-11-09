@@ -201,11 +201,20 @@ class AbsensiGuruController extends ResourceController
             }
         }
 
-        // Tentukan status kehadiran otomatis jika di_sekolah & tidak dikirim eksplisit
-        $status = $payload['status'] ?? 'hadir';
-        if ($kategoriPosisi === 'di_sekolah' && $tipeAbsen === 'datang' && empty($payload['status'])) {
-            $jamMasukBatas = $sekolah['jam_masuk_guru'] ?? '07:20:00';
-            $status = ($waktuAbsen > $jamMasukBatas) ? 'terlambat' : 'hadir';
+        // Tentukan status kehadiran otomatis jika tidak dikirim eksplisit
+        $status = ! empty($payload['status']) ? $payload['status'] : null;
+        if (empty($status)) {
+            if ($kategoriPosisi === 'di_sekolah') {
+                if ($tipeAbsen === 'datang') {
+                    $jamMasukBatas = $sekolah['jam_masuk_guru'] ?? '07:20:00';
+                    $status = ($waktuAbsen > $jamMasukBatas) ? 'terlambat' : 'hadir';
+                } else {
+                    // Absen pulang di sekolah default status adalah hadir
+                    $status = 'hadir';
+                }
+            } else {
+                $status = 'dinas_luar';
+            }
         }
 
         $insertData = [
@@ -230,13 +239,12 @@ class AbsensiGuruController extends ResourceController
         $absenId      = $this->model->getInsertID();
         $absenLengkap = $this->model->getAbsensiLengkap($absenId);
 
-        // Kirim Notifikasi WA ke Grup Sekolah Induk Guru (SMP atau SMA)
-        $hasilWa = $this->kirimWaGrupSekolah($absenLengkap, $sekolah);
+        // Notifikasi WA ke Grup Sekolah dinonaktifkan sesuai permintaan klien (hanya tersimpan ke database)
+        // $hasilWa = $this->kirimWaGrupSekolah($absenLengkap, $sekolah);
 
         return $this->respondCreated([
             'status'        => 201,
             'message'       => 'Absensi guru berhasil disimpan.',
-            'notifikasi_wa' => $hasilWa,
             'data'          => $absenLengkap,
         ]);
     }
